@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: lmv-cluster
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/Autoever-Cloud/argocd-lmv-cluster-manifests.git'
+    targetRevision: HEAD
+    path: overlays/production
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: efkstack
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

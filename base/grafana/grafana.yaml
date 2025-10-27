@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grafana
+  namespace: prometheus
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      serviceAccountName: grafana
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.4.5
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            # ✅ 관리자 비밀번호 설정
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: asdf
+
+            # ✅ 모든 인터페이스에서 수신
+            - name: GF_SERVER_HTTP_ADDR
+              value: "0.0.0.0"
+            - name: GF_SERVER_HTTP_PORT
+              value: "3000"
+
+            # ✅ iframe 접근 허용
+            - name: GF_SECURITY_ALLOW_EMBEDDING
+              value: "true"
+
+            # ✅ 익명 접근 허용
+            # 로그인 없이 바로 대시보드 화면을 보여주기 위함
+            - name: GF_AUTH_ANONYMOUS_ENABLED
+              value: "true"
+            - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+              value: "Viewer"
+
+            # ✅ 서브패스에서 동작하도록 설정 (Spring 프록시와 연동)
+            # 백엔드 서버에서 이와 같은 주소로 요청시 받음
+            # Grafana를 /api/grafana/ 경로에서 동작하도록 설정 (프록시 대응)
+            - name: GF_SERVER_ROOT_URL
+              value: "http://112.218.95.58:18020/api/grafana/"
+            - name: GF_SERVER_SERVE_FROM_SUB_PATH
+              value: "true"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: prometheus
+  labels: { app: grafana }
+spec:
+  type: LoadBalancer
+  selector: { app: grafana }
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000

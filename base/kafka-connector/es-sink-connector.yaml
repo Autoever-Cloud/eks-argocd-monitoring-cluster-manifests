@@ -1,0 +1,37 @@
+# base/kafka-connect/es-sink-connector.yaml
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnector
+metadata:
+  name: es-sink-connector # 커넥터의 이름
+  namespace: efkstack
+  labels:
+    # 이 라벨을 통해 Strimzi가 어떤 KafkaConnect 클러스터를 타겟으로 할지 결정
+    strimzi.io/cluster: "kafka-connect" 
+spec:
+  class: io.confluent.connect.elasticsearch.ElasticsearchSinkConnector
+  tasksMax: 1
+
+  # JSON의 config 섹션 내용을 그대로 가져옴
+  config:
+    topics: "system-auth-topic,service-topic,system-kmsg-topic"
+    connection.url: "https://es-cluster-es-http:9200"
+    connection.username: "elastic"
+    connection.password: "${strimzisecrets:es-cluster-es-elastic-user:elastic}"
+
+    elastic.https.ssl.truststore.location: "/opt/kafka/external-configuration/es-truststore/truststore.jks"
+    elastic.https.ssl.truststore.password: "${strimzisecrets:es-truststore-secret:truststore.password}"
+    elastic.security.protocol: "SSL"
+
+    type.name: "_doc"
+    key.ignore: "true"
+    schema.ignore: "true"
+    
+    # --- 성능 최적화 설정 ---
+    flush.timeout.ms: 60000
+    batch.size: 1000
+    max.in.flight.requests: 1
+    max.buffered.records: 5000
+    linger.ms: 1000
+    connection.timeout.ms: 40000
+    read.timeout.ms: 30000
+    producer.delivery.timeout.ms: 130000

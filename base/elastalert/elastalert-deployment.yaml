@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elastalert
+  namespace: efkstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elastalert
+  template:
+    metadata:
+      labels:
+        app: elastalert
+    spec:
+      # 1. 볼륨 정의: 원본 템플릿용(configMap)과 최종 설정파일용(emptyDir)
+      volumes:
+      - name: config-template-volume
+        configMap:
+          name: elastalert-config
+      - name: config-volume # 최종 설정 파일이 저장될 쓰기 가능한 공간
+        emptyDir: {}
+      
+      # 3. 메인 컨테이너 실행 전, 설정 파일을 먼저 생성하는 initContainer
+      initContainers:
+      - name: config-initializer
+        image: dibi/envsubst:latest # 가벼운 busybox 이미지 사용
+        command: ['/bin/sh', '-c']
+        args:
+          - |
+             # rules 디렉터리 생성
+             mkdir -p /processed-config/rules;
+            
+             # 메인 설정 파일 생성
+             envsubst < /config-templates/config.yaml > /processed-config/config.yaml;
+            
+             # 규칙 파일들을 rules 디렉터리 안에 생성
+             envsubst < /config-templates/service_error_rule.yaml > /processed-config/rules/service_error_rule.yaml;
+             envsubst < /config-templates/system_auth_fail_rule.yaml > /processed-config/rules/system_auth_fail_rule.yaml;
+             envsubst < /config-templates/system_kmsg_error_rule.yaml > /processed-config/rules/system_kmsg_error_rule.yaml;
+            
+             echo "Config files initialization complete.";
+             ls -R /processed-config; # 생성된 파일 구조 확인용 로그
+        # 3. Secret의 URL들을 환경 변수로 주입
+        env:
+        - name: ES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: es-cluster-es-elastic-user
+              key: elastic
+        - name: SERVICE_WEBHOOK_URL # service 룰을 위한 환경 변수
+          valueFrom:
+            secretKeyRef:
+              name: webhook-url-secret # 1단계에서 만든 Secret
+              key: service_post_url   # Secret 안의 키
+        - name: AUTH_WEBHOOK_URL    # auth 룰을 위한 환경 변수
+          valueFrom:
+            secretKeyRef:
+              name: webhook-url-secret
+              key: auth_post_url
+        - name: KMSG_WEBHOOK_URL    # kmsg 룰을 위한 환경 변수
+          valueFrom:
+            secretKeyRef:
+              name: webhook-url-secret
+              key: kmsg_post_url 
+        
+        # 볼륨 마운트 설정
+        volumeMounts:
+        - name: config-template-volume # 원본 템플릿 (읽기 전용)
+          mountPath: /config-templates
+          readOnly: true
+        - name: config-volume          # 최종 설정 파일 저장소 (쓰기 가능)
+          mountPath: /processed-config
+          
+      containers:
+      - name: elastalert
+        image: jertel/elastalert2:2.10.0 # ElastAlert2 도커 이미지
+        # 2. Command 오버라이드: ElastAlert 실행 전, 설정 파일 치환 작업 수행
+        command:
+          - "elastalert"
+          - "--verbose"
+          - "--config"
+          - "/opt/elastalert/config.yaml" # 설정 파일 경로 명시
+        
+        # subPath를 사용하여 파일과 디렉터리를 명확히 분리하여 마운트
+        volumeMounts:
+        - name: config-volume
+          mountPath: /opt/elastalert/config.yaml # config.yaml 파일만 직접 마운트
+          subPath: config.yaml
+        - name: config-volume
+          mountPath: /opt/elastalert/rules # rules 디렉터리만 마운트
+          subPath: rules

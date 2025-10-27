@@ -1,0 +1,71 @@
+# base/kafka-connect/kafka-connect.yaml
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: kafka-connect # Kafka Connect 클러스터의 이름
+  namespace: efkstack
+  annotations:
+    # KafkaConnector 리소스를 사용하려면 이 어노테이션이 필요합니다.
+    strimzi.io/use-connector-resources: "true" 
+spec:
+  version: 4.1.0 # Strimzi에서 관리하는 Kafka 버전
+  replicas: 1
+  bootstrapServers: ac6e87673463a479fa5cd90a7a876939-af18a545350c8258.elb.ap-northeast-2.amazonaws.com:9094 # Kafka 클러스터 주소
+  # tls:
+  #   trustedCertificates:
+  #     - secretName: kafka-broker-ca-secret 
+  #       certificate: ca.crt
+  
+  externalConfiguration:
+    volumes:
+      - name: es-truststore # 볼륨의 논리적 이름
+        secret:
+          secretName: es-truststore-secret # 마운트할 Kubernetes Secret의 이름
+
+  build:
+    # 1. 빌드된 이미지를 푸시할 컨테이너 레지스트리 정보를 입력합니다.
+    output:
+      type: docker # Docker Hub를 사용하는 경우
+      image: jiwon000/kafka-connect-es:1.0 # 새로 빌드할 이미지 태그 (버전을 올려주는 것이 좋습니다)
+      pushSecret: dockerhub-secret # 2단계에서 생성할 레지스트리 로그인용 시크릿 이름
+    
+    # 2. 설치할 플러그인 목록을 여기에 정의합니다. (Dockerfile의 COPY, RUN을 대체)
+    plugins:
+      - name: kafka-connect-elasticsearch # 플러그인 이름 (관리용)
+        artifacts: # <-- 이 부분을 추가해야 합니다.
+          - type: zip
+            # Confluent Hub에서 제공하는 공식 다운로드 URL을 사용합니다.
+            url: https://hub-downloads.confluent.io/api/plugins/confluentinc/kafka-connect-elasticsearch/versions/15.0.1/confluentinc-kafka-connect-elasticsearch-15.0.1.zip
+  
+  # 2단계에서 설정한 Taint & Toleration 적용
+  #template:
+  #  pod:
+  #    affinity: 
+  #      nodeAffinity:
+  #        requiredDuringSchedulingIgnoredDuringExecution:
+  #          nodeSelectorTerms:
+  #          - matchExpressions:
+  #              - key: kubernetes.io/hostname
+  #                operator: In 
+  #                values:
+  #                - lmv-kafka
+  #    tolerations:
+  #      - key: "kafka-connect-node"
+  #        operator: "Equal"
+  #        value: "true"
+  #        effect: "NoSchedule"
+  # Kafka Connect의 기본 설정
+  config:
+    group.id: my-connect-group
+    offset.storage.topic: my_connect_offsets
+    config.storage.topic: my_connect_configs
+    status.storage.topic: my_connect_statuses
+    #security.protocol: SSL
+    # ... (기타 CONNECT_ 변수들은 여기에 key: value 형태로 변환)
+    key.converter: org.apache.kafka.connect.json.JsonConverter
+    value.converter: org.apache.kafka.connect.json.JsonConverter
+    key.converter.schemas.enable: false
+    value.converter.schemas.enable: false
+    config.storage.replication.factor: 3
+    offset.storage.replication.factor: 3
+    status.storage.replication.factor: 3
