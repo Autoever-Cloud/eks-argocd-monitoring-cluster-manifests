@@ -11,7 +11,10 @@ spec:
     path: overlays/production
   destination:
     server: 'https://kubernetes.default.svc'
+    namespace: efkstack
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+    - CreateNamespace=trues
