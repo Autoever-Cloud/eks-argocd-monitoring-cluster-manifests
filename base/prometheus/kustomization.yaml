@@ -3,4 +3,4 @@ kind: Kustomization
 resources:
   - prometheus-central-config.yaml
   - prometheus-central.yaml
-  - sc-gp3.yaml
+  - prometheus-pv.yaml
