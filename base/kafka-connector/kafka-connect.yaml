@@ -38,22 +38,16 @@ spec:
             url: https://hub-downloads.confluent.io/api/plugins/confluentinc/kafka-connect-elasticsearch/versions/15.0.1/confluentinc-kafka-connect-elasticsearch-15.0.1.zip
   
   # 2단계에서 설정한 Taint & Toleration 적용
-  #template:
-  #  pod:
-  #    affinity: 
-  #      nodeAffinity:
-  #        requiredDuringSchedulingIgnoredDuringExecution:
-  #          nodeSelectorTerms:
-  #          - matchExpressions:
-  #              - key: kubernetes.io/hostname
-  #                operator: In 
-  #                values:
-  #                - lmv-kafka
-  #    tolerations:
-  #      - key: "kafka-connect-node"
-  #        operator: "Equal"
-  #        value: "true"
-  #        effect: "NoSchedule"
+  template:
+    pod:
+      tolerations:
+        - key: "app"
+          operator: "Equal"
+          value: "kafka-connect"
+          effect: "NoSchedule"
+      nodeSelector:
+        dedicated: "kafka-connect"
+      
   # Kafka Connect의 기본 설정
   config:
     group.id: my-connect-group
