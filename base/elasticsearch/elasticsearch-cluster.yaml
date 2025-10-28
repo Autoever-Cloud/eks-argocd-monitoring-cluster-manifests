@@ -24,6 +24,16 @@ spec:
             limits:
               memory: 2Gi
               cpu: 1
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 20Gi
+        storageClassName: gp3
   # ⬇️ 3. secureSettings 섹션을 추가하여 aws-credentials Secret을 키스토어에 등록합니다.
   secureSettings:
   - secretName: aws-credentials

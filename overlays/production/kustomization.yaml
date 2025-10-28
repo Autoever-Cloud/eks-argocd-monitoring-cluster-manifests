@@ -4,9 +4,9 @@ kind: Kustomization
 resources:
   - ../../base/elasticsearch
   - ../../base/kibana
-  - ../../base/elastalert
+  #- ../../base/elastalert
   #- ../../base/es-archiver
-  - ../../base/kafka-connector
+  #- ../../base/kafka-connector
   - ../../base/secrets
   - ../../base/grafana
   - ../../base/prometheus
