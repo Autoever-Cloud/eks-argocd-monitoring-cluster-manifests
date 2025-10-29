@@ -10,7 +10,7 @@ metadata:
 spec:
   version: 4.1.0 # Strimzi에서 관리하는 Kafka 버전
   replicas: 1
-  bootstrapServers: ac6e87673463a479fa5cd90a7a876939-af18a545350c8258.elb.ap-northeast-2.amazonaws.com:9094 # Kafka 클러스터 주소
+  bootstrapServers: a01a893d804ad44018657f3b84eaaa35-1872ea900a3b7e8e.elb.ap-northeast-2.amazonaws.com:9094 # Kafka 클러스터 주소
   # tls:
   #   trustedCertificates:
   #     - secretName: kafka-broker-ca-secret 
@@ -23,16 +23,14 @@ spec:
           secretName: es-truststore-secret # 마운트할 Kubernetes Secret의 이름
 
   build:
-    # 1. 빌드된 이미지를 푸시할 컨테이너 레지스트리 정보를 입력합니다.
     output:
-      type: docker # Docker Hub를 사용하는 경우
-      image: jiwon000/kafka-connect-es:1.0 # 새로 빌드할 이미지 태그 (버전을 올려주는 것이 좋습니다)
-      pushSecret: dockerhub-secret # 2단계에서 생성할 레지스트리 로그인용 시크릿 이름
-    
-    # 2. 설치할 플러그인 목록을 여기에 정의합니다. (Dockerfile의 COPY, RUN을 대체)
+      type: docker 
+      image: jiwon000/kafka-connect-es:1.0 
+      pushSecret: dockerhub-secret 
+
     plugins:
-      - name: kafka-connect-elasticsearch # 플러그인 이름 (관리용)
-        artifacts: # <-- 이 부분을 추가해야 합니다.
+      - name: kafka-connect-elasticsearch 
+        artifacts: 
           - type: zip
             # Confluent Hub에서 제공하는 공식 다운로드 URL을 사용합니다.
             url: https://hub-downloads.confluent.io/api/plugins/confluentinc/kafka-connect-elasticsearch/versions/15.0.1/confluentinc-kafka-connect-elasticsearch-15.0.1.zip
