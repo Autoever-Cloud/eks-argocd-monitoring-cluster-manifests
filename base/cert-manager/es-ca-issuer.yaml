@@ -5,4 +5,4 @@ metadata:
   namespace: efkstack
 spec:
   ca:
-    secretName: es-cluster-es-http-certs-public
+    secretName: es-cluster-es-http-ca-internal
