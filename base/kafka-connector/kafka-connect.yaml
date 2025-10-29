@@ -43,8 +43,6 @@ spec:
           operator: "Equal"
           value: "kafka-connect"
           effect: "NoSchedule"
-      nodeSelector:
-        dedicated: "kafka-connect"
       
   # Kafka Connect의 기본 설정
   config:
