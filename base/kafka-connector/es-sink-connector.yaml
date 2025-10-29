@@ -9,7 +9,7 @@ metadata:
     strimzi.io/cluster: "kafka-connect" 
 spec:
   class: io.confluent.connect.elasticsearch.ElasticsearchSinkConnector
-  tasksMax: 1
+  tasksMax: 3
 
   # JSON의 config 섹션 내용을 그대로 가져옴
   config:
