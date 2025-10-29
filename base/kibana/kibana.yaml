@@ -12,12 +12,16 @@ spec:
     service:
       spec:
         # ECK Operator가 생성할 서비스의 타입을 LoadBalancer로 지정
-        type: LoadBalancer 
+        type: LoadBalancer
+        ports: 
+        - name: https
+          port: 443  
+          targetPort: 5601 
     tls:
       selfSignedCertificate:
         disabled: false
   config:
-    server.publicBaseUrl: "https://192.168.201.234:55601"
+    server.publicBaseUrl: "a20a836f94490420984222677019a561-1892146325.ap-northeast-2.elb.amazonaws.com"
     xpack.encryptedSavedObjects.encryptionKey: ${KIBANA_ENCRYPTION_KEY}
     xpack.security.authc.providers:
       anonymous.anonymous1:
