@@ -1,0 +1,20 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: es-truststore-generator
+  namespace: efkstack
+spec:
+  secretName: es-truststore-secret 
+  issuerRef:
+    name: es-ca-issuer
+  
+  keystores:
+    jks:
+      create: true
+      passwordSecretRef: 
+        name: es-truststore-password
+        key: password
+        
+  commonName: dummy-es-cert.com 
+  duration: 8760h 
+  renewBefore: 360h

@@ -1,0 +1,8 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: es-ca-issuer
+  namespace: efkstack
+spec:
+  ca:
+    secretName: es-cluster-es-http-certs-public

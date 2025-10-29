@@ -1,0 +1,31 @@
+# cert-manager-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd # Argo CD가 설치된 네임스페이스
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  
+  source:
+    repoURL: https://charts.jetstack.io # cert-manager 공식 Helm 차트 저장소
+    targetRevision: v1.19.1 
+    chart: cert-manager
+    
+    helm:
+      parameters:
+        - name: installCRDs
+          value: "true"
+          
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager 
+    
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
