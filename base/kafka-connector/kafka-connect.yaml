@@ -10,7 +10,7 @@ metadata:
 spec:
   version: 4.1.0 # Strimzi에서 관리하는 Kafka 버전
   replicas: 1
-  bootstrapServers: "b-1.sologmskcluster2.tak97t.c4.kafka.ap-northeast-2.amazonaws.com:9092,b-2.sologmskcluster2.tak97t.c4.kafka.ap-northeast-2.amazonaws.com:9092"
+  bootstrapServers: "b-1.sologmskcluster.81f2k0.c4.kafka.ap-northeast-2.amazonaws.com:9092,b-2.sologmskcluster.81f2k0.c4.kafka.ap-northeast-2.amazonaws.com:9092"
   #bootstrapServers: a01a893d804ad44018657f3b84eaaa35-1872ea900a3b7e8e.elb.ap-northeast-2.amazonaws.com:9094 # Kafka 클러스터 주소
   # tls:
   #   trustedCertificates:
