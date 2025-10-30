@@ -3,8 +3,6 @@ kind: Certificate
 metadata:
   name: es-truststore-generator
   namespace: efkstack
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 spec:
   secretName: es-truststore-secret 
   issuerRef:

@@ -3,8 +3,6 @@ kind: Issuer
 metadata:
   name: es-ca-issuer
   namespace: efkstack
-  annotations:
-    argocd.argoproj.io/sync-wave: "0"
 spec:
   ca:
     secretName: es-cluster-es-http-ca-internal
