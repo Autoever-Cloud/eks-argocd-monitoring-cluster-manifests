@@ -52,7 +52,7 @@ spec:
             # 백엔드 서버에서 이와 같은 주소로 요청시 받음
             # Grafana를 /api/grafana/ 경로에서 동작하도록 설정 (프록시 대응)
             - name: GF_SERVER_ROOT_URL
-              value: "http://a99f0d8f4932e45e48d5386de3ba8b08-1902719574.ap-northeast-2.elb.amazonaws.com/api/grafana/"
+              value: "aebcbca476d564c619adccdbbbf4ece0-791093399.ap-northeast-2.elb.amazonaws.com/api/grafana/"
             - name: GF_SERVER_SERVE_FROM_SUB_PATH
               value: "true"
 
