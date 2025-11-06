@@ -21,7 +21,7 @@ spec:
       selfSignedCertificate:
         disabled: false
   config:
-    server.publicBaseUrl: "https://a20a836f94490420984222677019a561-1892146325.ap-northeast-2.elb.amazonaws.com"
+    server.publicBaseUrl: "https://aba32f036e0f5489ebf6cba3a1e30ca6-965623803.ap-northeast-2.elb.amazonaws.com"
     xpack.encryptedSavedObjects.encryptionKey: ${KIBANA_ENCRYPTION_KEY}
     xpack.security.authc.providers:
       anonymous.anonymous1:
